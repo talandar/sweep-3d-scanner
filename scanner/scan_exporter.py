@@ -73,21 +73,25 @@ class ScanExporter(object):
             scan, mount_angle, base_angle_1, base_angle_2)
 
         for n, sample in enumerate(scan.samples):
-            newRow = {
-                'X': int(round(converted_coords[n, 0])),
-                'Y': int(round(converted_coords[n, 1])),
-                'Z': int(round(converted_coords[n, 2])),
-                'SIGNAL_STRENGTH': sample.signal_strength
-            }
-            self.writer.writerow(newRow)
+            x = int(round(converted_coords[n, 0]))
+            y = int(round(converted_coords[n, 1]))
+            z = int(round(converted_coords[n, 2]))
+            pow = sample.signal_strength
+            self.writer.writerow({
+                'X': x,
+                'Y': y,
+                'Z': z,
+                'SIGNAL_STRENGTH': pow
+            })
             if self.ws_uri!='':
+                csvRow = "%s,%s,%s,%s" % (x,y,z,pow)
                 try:
-                    self.ws.send(json.dumps(newRow))
+                    self.ws.send(csvRow)
                 except Exception:
                     self.ws = create_connection(self.ws_uri)
                     self.ws.on_message = ws_recv
                     self.ws.send('Hello, World - Connecting!')
-                    self.ws.send(json.dumps(newRow))
+                    self.ws.send(csvRow)
 
     def get_relative_file_path(self):
         """Returns the relative path of the destination file"""
