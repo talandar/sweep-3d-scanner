@@ -138,6 +138,7 @@ function performScan(params) {
         `--motor_speed=${params.motor_speed}`,
         `--sample_rate=${params.sample_rate}`,
         `--angular_range=${params.angular_range}`,
+		`--ws_uri=${params.ws_uri}`,
         `--output=${filename}`
     ];
     if (GLOBAL_APPLICATION_VARIABLE_bUseDummy)

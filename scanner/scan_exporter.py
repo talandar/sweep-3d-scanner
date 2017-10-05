@@ -5,6 +5,9 @@ import datetime
 import csv
 import os.path
 import scan_utils
+import json
+import websocket
+from websocket import create_connection
 
 
 class ScanExporter(object):
@@ -21,7 +24,7 @@ class ScanExporter(object):
     # Field names for the CSV
     field_names = ['X', 'Y', 'Z', 'SIGNAL_STRENGTH']
 
-    def __init__(self, file_name=None):
+    def __init__(self, file_name=None, ws_uri='ws://localhost:8081/'):
         """Return a ScanExporter object
         :param file_name: the name of the destination file, defaults to a timestamp name
         """
@@ -32,7 +35,13 @@ class ScanExporter(object):
 
         #self.output_dir = os.path.split(file_name)[0]
         self.file_name = os.path.split(file_name)[1]
+		
+        self.ws_uri=ws_uri
 
+        if ws_uri!='':
+            self.ws = create_connection(ws_uri)
+            self.ws.on_message = ws_recv
+            self.ws.send('Hello, World - Connecting!')
         # Create an output directory for the scans if it doesn't exit
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -64,12 +73,21 @@ class ScanExporter(object):
             scan, mount_angle, base_angle_1, base_angle_2)
 
         for n, sample in enumerate(scan.samples):
-            self.writer.writerow({
+            newRow = {
                 'X': int(round(converted_coords[n, 0])),
                 'Y': int(round(converted_coords[n, 1])),
                 'Z': int(round(converted_coords[n, 2])),
                 'SIGNAL_STRENGTH': sample.signal_strength
-            })
+            }
+            self.writer.writerow(newRow)
+            if self.ws_uri!='':
+                try:
+                    self.ws.send(json.dumps(newRow))
+                except Exception:
+                    self.ws = create_connection(self.ws_uri)
+                    self.ws.on_message = ws_recv
+                    self.ws.send('Hello, World - Connecting!')
+                    self.ws.send(json.dumps(newRow))
 
     def get_relative_file_path(self):
         """Returns the relative path of the destination file"""
@@ -78,6 +96,9 @@ class ScanExporter(object):
     def get_file_name(self):
         """Returns the name of the destination file"""
         return self.file_name
+		
+def ws_recv(ws,message):
+    print message
 
 
 def main(arg_dict):

@@ -260,7 +260,7 @@ def main(arg_dict):
     )
 
     # Create an exporter
-    exporter = scan_exporter.ScanExporter(file_name=arg_dict['output'])
+    exporter = scan_exporter.ScanExporter(file_name=arg_dict['output'], ws_uri=arg_dict['ws_uri'])
 
     use_dummy = arg_dict['use_dummy']
 
@@ -311,6 +311,10 @@ if __name__ == '__main__':
     parser.add_argument('-dz', '--dead_zone',
                         help='Starting angle of deadzone',
                         default=135,
+                        required=False)
+    parser.add_argument('-ws', '--ws_uri',
+                        help='Websocket URI',
+                        default='',
                         required=False)
     default_filename = "Scan " + datetime.datetime.fromtimestamp(
         time.time()).strftime('%Y-%m-%d %H-%M-%S') + '.csv'

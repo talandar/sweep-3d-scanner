@@ -123,10 +123,13 @@ function readSpecifiedScanOptions() {
     selectedKey = $('#select_SampleRate').find(":selected").val();
     properties = _UTILS.getEnumPropertiesForKey(_SETTINGS.SAMPLE_RATE_ENUM, selectedKey);
     options.sample_rate = properties.sample_rate;
+	
 
     let d = new Date();
     let alt_filename = "3D Scan - " + d.toDateString() + " " + d.toLocaleTimeString().replace(/:\s*/g, "-");
     options.file_name = _UTILS.textInputHasValue("#input_FileName") ? $("#input_FileName").val() : alt_filename;
+	
+	options.ws_uri = _UTILS.textInputHasValue("#ws_uri") ? $("#ws_uri").val() : "";
 
     return options;
 }
